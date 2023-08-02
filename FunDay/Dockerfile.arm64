@@ -1,0 +1,39 @@
+# Use a base image with Python
+FROM python:3.9
+
+# Set the working directory inside the container
+WORKDIR /app
+
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libpq-dev \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install the required Python packages
+RUN pip install pandas==1.4.3 \
+                nltk==3.7 \
+                numpy==1.23.5 \
+                tqdm==4.64.0 \
+                scikit-learn==1.1.2 \
+                spacy==3.4.3 \
+                streamlit==1.23.0 \
+                wget==3.2 \
+                pymupdf==1.22.3 \
+                docker==6.1.2 \
+                pipwin==0.5.2 \
+                plotly==5.10.0 \
+                elasticsearch==8.6.2 \
+                streamlit-extras==0.2.7 \
+                streamlit-plotly-events==0.0.6 \
+                wordcloud==1.9.2
+
+COPY . .
+# Expose the Streamlit port (if needed)
+EXPOSE 8501
+
+# Run the Streamlit app
+CMD ["streamlit", "run", "main.py","--server.port=8501", "--server.address=0.0.0.0"]
+

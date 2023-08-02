@@ -1,0 +1,22 @@
+# Use the official Python base image for ARM64 (M1)
+FROM python:3.9-slim-buster
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y libcairo2-dev libpango1.0-dev libgif-dev
+
+# Copy the requirements.txt file and install dependencies
+COPY requirements.txt /app/
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the Streamlit app files into the container
+COPY . /app/
+
+# Expose the port that Streamlit runs on (default is 8501)
+EXPOSE 8501
+
+# Set the command to run the Streamlit app when the container starts
+CMD ["streamlit", "run", "main.py"]
+
