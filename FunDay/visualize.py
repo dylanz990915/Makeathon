@@ -306,6 +306,9 @@ class PlotPaper():
  
         display_df, filter_data = self.get_ngrams(selected_data_search,self.df)
         st.session_state.display_df = display_df
+        if len(st.session_state.search_res)>0:  
+            with st.expander('See DataFrame'):  
+                st.dataframe(st.session_state.search_res[['Self Introduction','Name','Job Title','Org','join_year']])  
         
         return filter_data_search
        
@@ -328,6 +331,9 @@ class PlotPaper():
     
         self.plot_wc(display_data)
         PlotPaper.clear_word_cloud_data()
+        # with st.expander('See DataFrame'):  
+        #     st.dataframe(filter_data[['Self Introduction','Name','Job Title','Org','join_year']])  
+       
         return display_data,filter_data[['Self Introduction','Name']]
     
     # @st.cache(allow_output_mutation=True)
@@ -456,6 +462,8 @@ class PlotPaper():
 
         filter_data, display_df = self.get_ngrams(selected_data,self.df)
         st.session_state.display_df = display_df
+        with st.expander('See DataFrame'):  
+                st.dataframe(st.session_state.display_df) 
 
 
     def KMeans_slider(self):
@@ -503,6 +511,8 @@ class PlotPaper():
      
         filter_data, display_df = self.get_ngrams(selected_data,self.df)
         st.session_state.display_df = display_df
+        with st.expander('See DataFrame'):  
+                st.dataframe(st.session_state.display_df) 
 
 
   
