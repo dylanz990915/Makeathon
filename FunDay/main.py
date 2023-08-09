@@ -1,5 +1,5 @@
 import streamlit as st
-
+st. set_page_config(layout="wide")
 from home import homepage
 # st.set_page_config(layout="wide", page_title="ExploreX")
 if "enter_home" not in st.session_state:

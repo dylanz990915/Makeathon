@@ -43,19 +43,21 @@ class PlotPaper():
         if 'word_cloud_data' not in st.session_state:
             st.session_state.word_cloud_data = None
 
-
+        self.locations = self.df['Location'].unique().tolist()
         self.years = self.df.join_year.unique()
         self.positions = self.df['Job Title'].unique().tolist()
         self.selected_position = None  
+        self.selected_location = None 
         self.orgs = self.df.Org.unique().tolist()
         
-        self.col1, self.col2, self.col3 = st.columns([7, 2, 2]) 
+        self.col1, self.col2, self.col3 = st.columns([10, 2, 2]) 
 
         with self.col3:
             self.selected_position = st.selectbox("Filter by Position", ["All"] + self.positions)
             self.selected_org = st.selectbox("Filter by Org", ["All"] + self.orgs)
-            if self.selected_position != "All" or self.selected_org !="All":
-                self.df = self.position_filter(self.selected_position,self.selected_org)
+            self.selected_location = st.selectbox("Filter by Location", ["All"] + self.locations)  
+            if self.selected_position != "All" or self.selected_org !="All" or self.selected_location != "All":
+                self.df = self.position_filter(self.selected_position,self.selected_org,self.selected_location)
             
                 
 
@@ -94,16 +96,21 @@ class PlotPaper():
 
             
 
-    def position_filter(self, position, org):
-        self.df=pd.read_csv('data_6.csv')
-        if position == "All" and org == 'All':
-            return self.df
-        elif position == "All" and org != 'All':
-            return self.df[self.df['Org'] == org]
-        elif position != "All" and org == 'All':
-            return self.df[self.df['Job Title'] == position]
-        else:
-            return self.df[(self.df['Job Title'] == position) & (self.df['Org'] == org)]
+    def position_filter(self, position, org, location):
+        self.df=pd.read_csv('data_pin.csv')
+        conditions = []  
+        if position != "All":  
+            conditions.append(self.df['Job Title'] == position)  
+        if org != "All":  
+            conditions.append(self.df['Org'] == org)  
+        if location != "All":  
+            conditions.append(self.df['Location'] == location)  
+    
+        if conditions:  
+            combined_condition = np.logical_and.reduce(conditions)  
+            return self.df[combined_condition]  
+        
+        return self.df  
 
     def display_WordCloudImage(self, word_cloud_data):
         if 'word_cloud_image' not in st.session_state:
@@ -144,7 +151,7 @@ class PlotPaper():
     @staticmethod
     @st.cache_data(persist=True)
     def init_data():
-        df = pd.read_csv('data_6.csv')
+        df = pd.read_csv('data_pin.csv')
         return df
 
     @staticmethod
@@ -187,8 +194,8 @@ class PlotPaper():
         if type == "years":
             for i in range(2010,2022):
                 df_filter = self.df.loc[self.df['join_year'] < i]
-                fig_slider.add_trace(go.Scatter(visible = False, x = df_filter['emb1'], y = df_filter['emb2'],  mode = 'markers', marker_color = df_filter['color_code'], opacity = 1, text = df_filter['Job Title'], customdata=df_filter['Name'],  hovertemplate = 'Self Intro: %{text} <br>'  + 'Name: %{customdata}<extra></extra>'))
-            fig_slider.add_trace(go.Scatter(visible = False, x = df_filter['emb1'], y = df_filter['emb2'],  mode = 'markers', marker_color = df_filter['color_code'], opacity = 0.1, text = df_filter['Job Title'], customdata=df_filter['Name'],  hovertemplate = 'Self Intro: %{text} <br>' +  'Name: %{customdata}<extra></extra>'))
+                fig_slider.add_trace(go.Scatter(visible = False, x = df_filter['emb1'], y = df_filter['emb2'],  mode = 'markers', marker_color = df_filter['color_code'], opacity = 1, text = df_filter['Self Introduction'], customdata=df_filter['Name'],  hovertemplate = 'Self Intro: %{text} <br>'  + 'Name: %{customdata}<extra></extra>'))
+            fig_slider.add_trace(go.Scatter(visible = False, x = df_filter['emb1'], y = df_filter['emb2'],  mode = 'markers', marker_color = df_filter['color_code'], opacity = 0.1, text = df_filter['Self Introduction'], customdata=df_filter['Name'],  hovertemplate = 'Self Intro: %{text} <br>' +  'Name: %{customdata}<extra></extra>'))
 
             # Set custom axis range to center the points
       
@@ -202,8 +209,8 @@ class PlotPaper():
             for i_km in range(2,8, 2):
                 
                 kmeans = KMeans(n_clusters=i_km, random_state=42).fit(x_km)
-                fig_slider.add_trace(go.Scatter(visible = False, x = df_filter_km['emb1'], y = df_filter_km['emb2'],  mode = 'markers', marker=dict(color=kmeans.labels_), opacity = 1, text = df_filter_km['Job Title'], customdata=df_filter_km['Name'],  hovertemplate = 'Self Intro: %{text} <br>' +'Name: %{customdata}<extra></extra>'))
-            fig_slider.add_trace(go.Scatter(visible = False, x = df_filter_km['emb1'], y = df_filter_km['emb2'],  mode = 'markers', marker=dict(color=kmeans.labels_), opacity = 0.1, text = df_filter_km['Job Title'], customdata=df_filter_km['Name'],  hovertemplate = 'Self Intro: %{text} <br>' +'Name: %{customdata}<extra></extra>'))
+                fig_slider.add_trace(go.Scatter(visible = False, x = df_filter_km['emb1'], y = df_filter_km['emb2'],  mode = 'markers', marker=dict(color=kmeans.labels_), opacity = 1, text = df_filter_km['Self Introduction'], customdata=df_filter_km['Name'],  hovertemplate = 'Self Intro: %{text} <br>' +'Name: %{customdata}<extra></extra>'))
+            fig_slider.add_trace(go.Scatter(visible = False, x = df_filter_km['emb1'], y = df_filter_km['emb2'],  mode = 'markers', marker=dict(color=kmeans.labels_), opacity = 0.1, text = df_filter_km['Self Introduction'], customdata=df_filter_km['Name'],  hovertemplate = 'Self Intro: %{text} <br>' +'Name: %{customdata}<extra></extra>'))
     
             fig_slider.data[-2].visible = True
             fig_slider.data[-1].visible = True
@@ -215,8 +222,8 @@ class PlotPaper():
             fig.update_traces(marker_size=4 )
             fig.update_xaxes(visible=False)
             fig.update_yaxes(visible=False)
-            fig.update_xaxes(range=[0, 6])
-            fig.update_yaxes(range=[-4, 4])
+            fig.update_xaxes(range=[-5, 6])
+            fig.update_yaxes(range=[5, 16])
 
             fig.update_layout(
                     showlegend=False,                    
@@ -232,7 +239,7 @@ class PlotPaper():
     def main_viz(self):
         
         fig_main = go.Figure()
-        fig_main.add_trace(go.Scatter(x = self.df['emb1'], y = self.df['emb2'],  mode = 'markers', marker_color = self.df['color_code'], opacity = 1, text = self.df['Job Title'], customdata=self.df['Name'], hovertemplate = 'Self Intro: %{text} <br>'  + 'Name: %{customdata}<extra></extra>'))
+        fig_main.add_trace(go.Scatter(x = self.df['emb1'], y = self.df['emb2'],  mode = 'markers', marker_color = self.df['color_code'], opacity = 1, text = self.df['Self Introduction'], customdata=self.df['Name'], hovertemplate = 'Self Intro: %{text} <br>'  + 'Name: %{customdata}<extra></extra>'))
         
         fig_main = self.fig_trace_update(fig_main)
 
@@ -250,7 +257,7 @@ class PlotPaper():
         if mode == 'search':
             if len(key.split()) > 1:
                 paper_idx = []
-                for idx,(i,a) in enumerate(zip(self.position_filter(self.selected_position,self.selected_org)['Self Introduction'],self.position_filter(self.selected_position,self.selected_org)['Name']) ):
+                for idx,(i,a) in enumerate(zip(self.position_filter(self.selected_position,self.selected_org,self.selected_location)['Self Introduction'],self.position_filter(self.selected_position,self.selected_org,self.selected_location)['Name']) ):
                     sing_split = i.split()
                     a = a[1:-1].replace("'","")
                     a = a[1:-1].replace(".","")
@@ -269,7 +276,7 @@ class PlotPaper():
 
             else:
                 paper_idx = []
-                for idx,(i,a) in enumerate(zip(self.position_filter(self.selected_position,self.selected_org)['Self Introduction'],self.position_filter(self.selected_position,self.selected_org)['Name']) ):
+                for idx,(i,a) in enumerate(zip(self.position_filter(self.selected_position,self.selected_org,self.selected_location)['Self Introduction'],self.position_filter(self.selected_position,self.selected_org,self.selected_location)['Name']) ):
                 
                     if key in i.split() or key in a:
                         paper_idx.append(idx)
@@ -277,21 +284,21 @@ class PlotPaper():
                 if len(paper_idx) == 0:
                     st.error("No match Found")
         # self.df=self.position_filter(self.selected_position)
-        self.df=self.position_filter(self.selected_position,self.selected_org)
+        self.df=self.position_filter(self.selected_position,self.selected_org,self.selected_location)
         print(paper_idx)
         print(len(self.df))
-        filter_data_search = self.position_filter(self.selected_position,self.selected_org).iloc[paper_idx]
+        filter_data_search = self.position_filter(self.selected_position,self.selected_org,self.selected_location).iloc[paper_idx]
         print(len(filter_data_search))
         st.session_state.bt_plot = True
            
         
         
-        trace_1 = go.Scatter( x = filter_data_search['emb1'], y = filter_data_search['emb2'],  mode = 'markers', marker_color = filter_data_search['color_code'], opacity = 1, text = filter_data_search['Job Title'], customdata=filter_data_search['Name'], hovertemplate = 'Self Intro: %{text} <br>'  + 'Name: %{customdata}<extra></extra>')
+        trace_1 = go.Scatter( x = filter_data_search['emb1'], y = filter_data_search['emb2'],  mode = 'markers', marker_color = filter_data_search['color_code'], opacity = 1, text = filter_data_search['Self Introduction'], customdata=filter_data_search['Name'], hovertemplate = 'Self Intro: %{text} <br>'  + 'Name: %{customdata}<extra></extra>')
         
         if len(paper_idx):
-            trace_2 = go.Scatter(visible = True, x = self.position_filter(self.selected_position,self.selected_org)['emb1'], y = self.position_filter(self.selected_position,self.selected_org)['emb2'],  mode = 'markers', marker_color = self.df['color_code'], opacity = 0.1, text = self.df['Job Title'], customdata=self.df['Name'], hoverinfo = 'none')
+            trace_2 = go.Scatter(visible = True, x = self.position_filter(self.selected_position,self.selected_org,self.selected_location)['emb1'], y = self.position_filter(self.selected_position,self.selected_org,self.selected_location)['emb2'],  mode = 'markers', marker_color = self.df['color_code'], opacity = 0.1, text = self.df['Self Introduction'], customdata=self.df['Name'], hoverinfo = 'none')
         else:
-            trace_2 = go.Scatter(visible = True, x = self.position_filter(self.selected_position,self.selected_org)['emb1'], y = self.position_filter(self.selected_position,self.selected_org)['emb2'],  mode = 'markers', marker_color = self.df['color_code'], opacity = 1, text = self.df['Job Title'], customdata=self.df['Name'], hoverinfo = 'none')
+            trace_2 = go.Scatter(visible = True, x = self.position_filter(self.selected_position,self.selected_org)['emb1'], y = self.position_filter(self.selected_position,self.selected_org,self.selected_location)['emb2'],  mode = 'markers', marker_color = self.df['color_code'], opacity = 1, text = self.df['Self Introduction'], customdata=self.df['Name'], hoverinfo = 'none')
         
         
         fig_search = go.Figure(data = [trace_1, trace_2])
@@ -308,7 +315,7 @@ class PlotPaper():
         st.session_state.display_df = display_df
         if len(st.session_state.search_res)>0:  
             with st.expander('See DataFrame'):  
-                st.dataframe(st.session_state.search_res[['Self Introduction','Name','Job Title','Org','join_year']])  
+                st.dataframe(st.session_state.search_res[['Self Introduction','Name','Job Title','Org','join_year','Location']])  
         
         return filter_data_search
        
@@ -334,7 +341,7 @@ class PlotPaper():
         # with st.expander('See DataFrame'):  
         #     st.dataframe(filter_data[['Self Introduction','Name','Job Title','Org','join_year']])  
        
-        return display_data,filter_data[['Self Introduction','Name']]
+        return display_data,filter_data[['Self Introduction','Name','Job Title','Org','join_year','Location']]
     
     # @st.cache(allow_output_mutation=True)
     # def get_WordCloud(self,grams):
@@ -463,7 +470,7 @@ class PlotPaper():
         filter_data, display_df = self.get_ngrams(selected_data,self.df)
         st.session_state.display_df = display_df
         with st.expander('See DataFrame'):  
-                st.dataframe(st.session_state.display_df) 
+                st.dataframe(st.session_state.display_df, width=1000) 
 
 
     def KMeans_slider(self):
@@ -512,7 +519,7 @@ class PlotPaper():
         filter_data, display_df = self.get_ngrams(selected_data,self.df)
         st.session_state.display_df = display_df
         with st.expander('See DataFrame'):  
-                st.dataframe(st.session_state.display_df) 
+                st.dataframe(st.session_state.display_df, width=1000) 
 
 
   
