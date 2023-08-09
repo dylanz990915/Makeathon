@@ -298,7 +298,7 @@ class PlotPaper():
         if len(paper_idx):
             trace_2 = go.Scatter(visible = True, x = self.position_filter(self.selected_position,self.selected_org,self.selected_location)['emb1'], y = self.position_filter(self.selected_position,self.selected_org,self.selected_location)['emb2'],  mode = 'markers', marker_color = self.df['color_code'], opacity = 0.1, text = self.df['Self Introduction'], customdata=self.df['Name'], hoverinfo = 'none')
         else:
-            trace_2 = go.Scatter(visible = True, x = self.position_filter(self.selected_position,self.selected_org)['emb1'], y = self.position_filter(self.selected_position,self.selected_org,self.selected_location)['emb2'],  mode = 'markers', marker_color = self.df['color_code'], opacity = 1, text = self.df['Self Introduction'], customdata=self.df['Name'], hoverinfo = 'none')
+            trace_2 = go.Scatter(visible = True, x = self.position_filter(self.selected_position,self.selected_org,self.selected_location)['emb1'], y = self.position_filter(self.selected_position,self.selected_org,self.selected_location)['emb2'],  mode = 'markers', marker_color = self.df['color_code'], opacity = 1, text = self.df['Self Introduction'], customdata=self.df['Name'], hoverinfo = 'none')
         
         
         fig_search = go.Figure(data = [trace_1, trace_2])
