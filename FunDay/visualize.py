@@ -50,7 +50,7 @@ class PlotPaper():
         self.selected_location = None 
         self.orgs = self.df.Org.unique().tolist()
         
-        self.col1, self.col2, self.col3 = st.columns([10, 2, 2]) 
+        self.col1, self.col2, self.col3 = st.columns([9, 2.5, 2]) 
 
         with self.col3:
             self.selected_position = st.selectbox("Filter by Position", ["All"] + self.positions)
